@@ -4,6 +4,9 @@ name := "play-spring-loader"
 
 playBuildRepoName in ThisBuild := "play-spring-loader"
 
+organizationName := "Lightbend"
+startYear := Some(2017)
+
 val PlayVersion = "2.6.6"
 val SpringVersion = "4.3.11.RELEASE"
 
