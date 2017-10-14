@@ -1,47 +1,48 @@
 
-version := "1.0.0-SNAPSHOT"
-organization := "com.actimust"
-scalaVersion := "2.12.3"
-
+organization := "com.lightbend.play"
 name := "play-spring-loader"
-crossPaths := false
 
+playBuildRepoName in ThisBuild := "play-spring-loader"
 
-lazy val root = project in file(".")
+val PlayVersion = "2.6.6"
+val SpringVersion = "4.3.11.RELEASE"
+
+lazy val root = (project in file(".")).enablePlugins(PlayLibrary)
 
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play" % "2.6.6",
-  "org.springframework" % "spring-context" % "4.3.5.RELEASE"
+  "com.typesafe.play" %% "play" % PlayVersion,
+  "org.springframework" % "spring-context" % SpringVersion
 )
 
-publishMavenStyle := true
+import ReleaseTransformations._
+releaseCrossBuild := true
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  ReleaseStep(action = Command.process("publishSigned", _), enableCrossBuild = true),
+  setNextVersion,
+  commitNextVersion,
+  ReleaseStep(action = Command.process("sonatypeReleaseAll", _), enableCrossBuild = true),
+  pushChanges
+)
 
-publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (isSnapshot.value)
-    Some("snapshots" at nexus + "content/repositories/snapshots")
-  else
-    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+lazy val checkCodeFormat = taskKey[Unit]("Check that code format is following Scalariform rules")
+
+checkCodeFormat := {
+  val exitCode = "git diff --exit-code".!
+  if (exitCode != 0) {
+    sys.error(
+      """
+        |ERROR: Scalariform check failed, see differences above.
+        |To fix, format your sources using sbt scalariformFormat test:scalariformFormat before submitting a pull request.
+        |Additionally, please squash your commits (eg, use git commit --amend) if you're going to update this pull request.
+      """.stripMargin)
+  }
 }
 
-pomIncludeRepository := { _ => false }
-
-pomExtra :=
-  <url>https://github.com/remithieblin/play-spring-loader</url>
-    <licenses>
-      <license>
-        <name>BSD-style</name>
-        <url>http://www.opensource.org/licenses/bsd-license.php</url>
-        <distribution>repo</distribution>
-      </license>
-    </licenses>
-    <scm>
-      <url>git@github.com:remithieblin/play-spring-loader.git</url>
-      <connection>scm:git:git@github.com:remithieblin/play-spring-loader.git</connection>
-    </scm>
-    <developers>
-      <developer>
-        <id>remi.thieblin</id>
-        <name>Remi Thieblibn</name>
-      </developer>
-    </developers>
+addCommandAlias("validateCode", ";scalariformFormat;test:scalariformFormat;headerCheck;test:headerCheck;checkCodeFormat")

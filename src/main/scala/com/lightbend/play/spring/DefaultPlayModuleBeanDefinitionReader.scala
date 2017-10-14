@@ -1,9 +1,9 @@
-package com.actimust.play.spring
+package com.lightbend.play.spring
 
 import java.lang.annotation.Annotation
 
-import org.springframework.beans.factory.config.{AutowireCapableBeanFactory, BeanDefinition, ConstructorArgumentValues}
-import org.springframework.beans.factory.support.{AutowireCandidateQualifier, DefaultListableBeanFactory, GenericBeanDefinition}
+import org.springframework.beans.factory.config.{ AutowireCapableBeanFactory, BeanDefinition, ConstructorArgumentValues }
+import org.springframework.beans.factory.support.{ AutowireCandidateQualifier, DefaultListableBeanFactory, GenericBeanDefinition }
 import org.springframework.core.annotation.AnnotationUtils
 import play.api.inject._
 
@@ -55,7 +55,7 @@ class DefaultPlayModuleBeanDefinitionReader extends PlayModuleBeanDefinitionRead
           // In this case, the key class is ignored, since Spring does not key beans by type, but a bean is eligible
           // for autowiring for all supertypes/interafaces.
 
-          if(clazz.isInterface) {
+          if (clazz.isInterface) {
             beanDef.setBeanClass(classOf[BindingKeyFactoryBean[_]])
             val args = new ConstructorArgumentValues()
             args.addIndexedArgumentValue(0, clazz)

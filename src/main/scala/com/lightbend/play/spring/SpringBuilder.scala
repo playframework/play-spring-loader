@@ -1,4 +1,4 @@
-package com.actimust.play.spring
+package com.lightbend.play.spring
 
 import java.io.File
 import java.lang.annotation.Annotation
@@ -10,13 +10,13 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor
 import org.springframework.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver
-import org.springframework.beans.factory.annotation.{AutowiredAnnotationBeanPostProcessor, QualifierAnnotationAutowireCandidateResolver}
+import org.springframework.beans.factory.annotation.{ AutowiredAnnotationBeanPostProcessor, QualifierAnnotationAutowireCandidateResolver }
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory
 import org.springframework.beans.factory.config.BeanDefinition
 import org.springframework.beans.factory.config.BeanDefinitionHolder
-import org.springframework.beans.factory.config.{AutowireCapableBeanFactory, BeanDefinition, BeanDefinitionHolder}
+import org.springframework.beans.factory.config.{ AutowireCapableBeanFactory, BeanDefinition, BeanDefinitionHolder }
 import org.springframework.beans.factory.support._
-import org.springframework.beans.factory.{FactoryBean, NoSuchBeanDefinitionException, NoUniqueBeanDefinitionException}
+import org.springframework.beans.factory.{ FactoryBean, NoSuchBeanDefinitionException, NoUniqueBeanDefinitionException }
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import play.api._
 import play.api.inject._
@@ -25,18 +25,17 @@ import play.api._
 import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 
-
 /**
  * A builder for creating Spring-backed Play Injectors.
  */
 abstract class SpringBuilder[Self] protected (
-    environment: Environment,
-    configuration: Configuration,
-    modules: Seq[Module],
-    overrides: Seq[Module],
-    disabled: Seq[Class[_]],
-    beanReader: PlayModuleBeanDefinitionReader,
-    eagerly: Boolean) {
+  environment: Environment,
+  configuration: Configuration,
+  modules: Seq[Module],
+  overrides: Seq[Module],
+  disabled: Seq[Class[_]],
+  beanReader: PlayModuleBeanDefinitionReader,
+  eagerly: Boolean) {
 
   /**
    * Set the environment.
@@ -110,7 +109,6 @@ abstract class SpringBuilder[Self] protected (
   final def withBeanReader(beanReader: PlayModuleBeanDefinitionReader): Self =
     copyBuilder(beanReader = beanReader)
 
-
   def applicationModule(): Seq[_] = createModule()
 
   /**
@@ -120,8 +118,8 @@ abstract class SpringBuilder[Self] protected (
 
     val injectorModule = new Module {
       def bindings(environment: Environment, configuration: Configuration) = Seq(
-        bind[play.inject.Injector].to[play.inject.DelegateInjector]
-    )}
+        bind[play.inject.Injector].to[play.inject.DelegateInjector])
+    }
     val enabledModules: Seq[Module] = filterOut(disabled, modules)
     val bindingModules: Seq[Module] = enabledModules :+ injectorModule
     val springableOverrides: Seq[Module] = overrides.map(SpringableModule.springable)
@@ -130,7 +128,6 @@ abstract class SpringBuilder[Self] protected (
 
   private def filterOut[A](classes: Seq[Class[_]], instances: Seq[A]): Seq[A] =
     instances.filterNot(o => classes.exists(_.isAssignableFrom(o.getClass)))
-
 
   /**
    * Disable module by class.
@@ -168,14 +165,13 @@ abstract class SpringBuilder[Self] protected (
           .foreach(b => beanReader.bind(beanFactory, b))
       case unknown => throw new PlayException(
         "Unknown module type",
-        s"Module [$unknown] is not a Play module or a Guice module"
-      )
+        s"Module [$unknown] is not a Play module or a Guice module")
     }
 
     val springConfig = configuration.getStringSeq("play.spring.configs").getOrElse(Seq.empty)
     val confClasses: Seq[Class[_]] = springConfig.map(className => loadClass(className))
-    if(confClasses.nonEmpty) {
-      ctx.register(confClasses:_*)
+    if (confClasses.nonEmpty) {
+      ctx.register(confClasses: _*)
     }
 
     ctx.refresh()
@@ -269,18 +265,18 @@ class BindingKeyFactoryBean[T](key: BindingKey[T], objectType: Class[_], factory
         val matches = candidates.toList
           .map(name => new BeanDefinitionHolder(factory.getBeanDefinition(name), name))
           .filter { bdh =>
-          bdh.getBeanDefinition match {
-            case abd: AbstractBeanDefinition =>
-              abd.hasQualifier(qualifier.getName)
-            case _ => false
-          }
-        }.map(_.getBeanName)
+            bdh.getBeanDefinition match {
+              case abd: AbstractBeanDefinition =>
+                abd.hasQualifier(qualifier.getName)
+              case _ => false
+            }
+          }.map(_.getBeanName)
         getNameFromMatches(matches)
       case Some(QualifierInstance(qualifier)) =>
         val candidates = factory.getBeanNamesForType(key.clazz)
         val matches = candidates.toList
           .map(name => new BeanDefinitionHolder(factory.getBeanDefinition(name), name))
-          .filter( bdh => QualifierChecker.checkQualifier(bdh, qualifier, factory.getTypeConverter))
+          .filter(bdh => QualifierChecker.checkQualifier(bdh, qualifier, factory.getTypeConverter))
           .map(_.getBeanName)
         getNameFromMatches(matches)
     }

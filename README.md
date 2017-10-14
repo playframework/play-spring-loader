@@ -1,27 +1,37 @@
 # Play Spring Loader
 
-This is an application loader for Play applications that runs with Spring as the DI.
+This is an application loader for Play applications that runs with Spring as the DI. It binds and allows injecting all Play-provided components in addition to any components provided by third-party Play modules (defined as a `play.api.inject.Module`)
 
-The project targets Play 2.6.x
+The current version targets Play 2.6.x and Spring 4.3.x. It may work but has not been tested on other versions.
 
-To use in your Play application project:
+There are currently no plans to add new features, but we're happy to accept contributions from the community.
 
-1. add the dependency in your build.sbt file: "com.actimust"% "play-spring-loader" % "1.0.0-SNAPSHOT"
-2. configure the loader in the conf file: play.application.loader = "com.actimust.play.spring.SpringApplicationLoader"
+## Setup Instructions
 
-The library is hosted on Sonatype. 
+To use in your Play SBT project, add the dependency to your `build.sbt`:
 
-Example config for `scala` based app:
+```scala
+libraryDependencies += "com.lightbend.play" %% "play-spring-loader" % "0.0.1"
+```
+
+Then configure the loader in your `application.conf`:
+
+```
+play.application.loader = "com.lightbend.play.spring.SpringApplicationLoader"
+````
+
+### For a Scala-based app
 
 ```sh
-play.application.loader = "com.actimust.play.spring.SpringApplicationLoader"
+play.application.loader = "com.lightbend.play.spring.SpringApplicationLoader"
 
-play.modules.enabled += "com.demo.spring.MyModule"
+# This works assuming the class is a play.api.inject.Module
+#play.modules.enabled += "com.demo.spring.MyModule"
 
 play.spring.configs += "config.AppConfig"
 ```
 
-with:
+with the following configuration class:
 
 ```scala
 package config
@@ -35,17 +45,18 @@ class AppConfig  {
 }
 ```
 
-Example config for Java based app:
+### For a Java-based app
 
 ```sh
-play.application.loader = "com.actimust.play.spring.SpringApplicationLoader"
+play.application.loader = "com.lightbend.play.spring.SpringApplicationLoader"
 
-play.modules.enabled += "com.demo.spring.MyModule"
+# This works assuming the class is a play.api.inject.Module
+#play.modules.enabled += "com.demo.spring.MyModule"
 
 play.spring.configs = ["com.example.PlaySpringDIConfiguration"]
 ```
 
-with:
+with the following configuration class:
 
 ```java
 package com.example;

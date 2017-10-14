@@ -1,6 +1,6 @@
 package controllers;
 
-import com.actimust.play.spring.SpringApplicationBuilder;
+import com.lightbend.play.spring.SpringApplicationBuilder;
 import org.junit.Test;
 import play.Application;
 import play.mvc.Http;

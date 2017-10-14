@@ -1,4 +1,4 @@
-package com.actimust.play.spring
+package com.lightbend.play.spring
 
 import play.api.inject._
 import play.api._
@@ -7,19 +7,17 @@ import play.core.{ DefaultWebCommands, WebCommands }
 /**
  * A builder for creating Applications using Spring.
  */
-class SpringApplicationBuilder (
-                                 environment: Environment = Environment.simple(),
-                                 configuration: Configuration = Configuration.empty,
-                                 modules: Seq[Module] = Seq.empty,
-                                 overrides: Seq[Module] = Seq.empty,
-                                 disabled: Seq[Class[_]] = Seq.empty,
-                                 eagerly: Boolean = false,
-                                 loadConfiguration: Environment => Configuration = Configuration.load,
-                                 loadModules: (Environment, Configuration) => Seq[Module] = SpringableModule.loadModules,
-                                 beanReader: PlayModuleBeanDefinitionReader = DefaultPlayModuleBeanDefinitionReader()
-                                 )  extends SpringBuilder[SpringApplicationBuilder](
-  environment, configuration, modules, overrides, disabled, beanReader, eagerly
-) {
+class SpringApplicationBuilder(
+  environment: Environment = Environment.simple(),
+  configuration: Configuration = Configuration.empty,
+  modules: Seq[Module] = Seq.empty,
+  overrides: Seq[Module] = Seq.empty,
+  disabled: Seq[Class[_]] = Seq.empty,
+  eagerly: Boolean = false,
+  loadConfiguration: Environment => Configuration = Configuration.load,
+  loadModules: (Environment, Configuration) => Seq[Module] = SpringableModule.loadModules,
+  beanReader: PlayModuleBeanDefinitionReader = DefaultPlayModuleBeanDefinitionReader()) extends SpringBuilder[SpringApplicationBuilder](
+  environment, configuration, modules, overrides, disabled, beanReader, eagerly) {
 
   // extra constructor for creating from Java
   def this() = this(environment = Environment.simple())
@@ -28,15 +26,15 @@ class SpringApplicationBuilder (
    * Create a new Self for this immutable builder.
    * Provided by builder implementations.
    */
-  override protected def newBuilder(environment: Environment,
-                                    configuration: Configuration,
-                                    modules: Seq[Module], overrides: Seq[Module],
-                                    disabled: Seq[Class[_]],
-                                    beanReader: PlayModuleBeanDefinitionReader,
-                                    eagerly: Boolean): SpringApplicationBuilder = {
+  override protected def newBuilder(
+    environment: Environment,
+    configuration: Configuration,
+    modules: Seq[Module], overrides: Seq[Module],
+    disabled: Seq[Class[_]],
+    beanReader: PlayModuleBeanDefinitionReader,
+    eagerly: Boolean): SpringApplicationBuilder = {
     copy(environment, configuration, modules, overrides, disabled, beanReader, eagerly)
   }
-
 
   override def prepareConfig(): SpringApplicationBuilder = {
     val initialConfiguration = loadConfiguration(environment)
@@ -55,13 +53,11 @@ class SpringApplicationBuilder (
     copy(configuration = appConfiguration)
       .bindings(loadedModules: Seq[Module])
       .bindings(
-        Seq(new Module{
+        Seq(new Module {
           def bindings(environment: Environment, configuration: Configuration) = Seq(
             bind[OptionalSourceMapper] to new OptionalSourceMapper(None),
-            bind[WebCommands] to new DefaultWebCommands
-          )
-        })
-      )
+            bind[WebCommands] to new DefaultWebCommands)
+        }))
   }
 
   /**
@@ -140,15 +136,14 @@ class SpringApplicationBuilder (
    * Internal copy method with defaults.
    */
   private def copy(
-                    environment: Environment = environment,
-                    configuration: Configuration = configuration,
-                    modules: Seq[Module] = modules,
-                    overrides: Seq[Module] = overrides,
-                    disabled: Seq[Class[_]] = disabled,
-                    beanReader: PlayModuleBeanDefinitionReader = beanReader,
-                    eagerly: Boolean = eagerly,
-                    loadConfiguration: Environment => Configuration = loadConfiguration,
-                    loadModules: (Environment, Configuration) => Seq[Module] = loadModules
-                    ): SpringApplicationBuilder =
+    environment: Environment = environment,
+    configuration: Configuration = configuration,
+    modules: Seq[Module] = modules,
+    overrides: Seq[Module] = overrides,
+    disabled: Seq[Class[_]] = disabled,
+    beanReader: PlayModuleBeanDefinitionReader = beanReader,
+    eagerly: Boolean = eagerly,
+    loadConfiguration: Environment => Configuration = loadConfiguration,
+    loadModules: (Environment, Configuration) => Seq[Module] = loadModules): SpringApplicationBuilder =
     new SpringApplicationBuilder(environment, configuration, modules, overrides, disabled, eagerly, loadConfiguration, loadModules, beanReader)
 }

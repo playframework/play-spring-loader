@@ -1,12 +1,12 @@
-package com.actimust.play.spring
+package com.lightbend.play.spring
 
 import org.springframework.beans.BeanInstantiationException
-import org.springframework.beans.factory.config.{AutowireCapableBeanFactory, BeanDefinition}
-import org.springframework.beans.factory.{BeanCreationException, NoSuchBeanDefinitionException}
+import org.springframework.beans.factory.config.{ AutowireCapableBeanFactory, BeanDefinition }
+import org.springframework.beans.factory.{ BeanCreationException, NoSuchBeanDefinitionException }
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor
-import org.springframework.beans.factory.support.{GenericBeanDefinition, DefaultListableBeanFactory}
-import play.api.inject.{BindingKey, Injector, Modules, Module}
-import play.api.{PlayException, Configuration, Environment}
+import org.springframework.beans.factory.support.{ GenericBeanDefinition, DefaultListableBeanFactory }
+import play.api.inject.{ BindingKey, Injector, Modules, Module }
+import play.api.{ PlayException, Configuration, Environment }
 
 import scala.reflect.ClassTag
 
@@ -28,7 +28,7 @@ class SpringInjector(factory: DefaultListableBeanFactory) extends Injector {
 
       case e: NoSuchBeanDefinitionException =>
         // if the class is a concrete type, attempt to create a just in time binding
-        if (!clazz.isInterface /* todo check if abstract, how? */) {
+        if (!clazz.isInterface /* todo check if abstract, how? */ ) {
           tryCreate(clazz)
         } else {
           throw e
@@ -84,10 +84,9 @@ object SpringableModule {
    */
   def springable(module: Any): Module = module match {
     case playModule: Module => playModule
-//    case bin
+    //    case bin
     case unknown => throw new PlayException(
       "Unknown module type",
-      s"Module [$unknown] is not a Play module"
-    )
+      s"Module [$unknown] is not a Play module")
   }
 }

@@ -1,8 +1,8 @@
-package com.actimust.play.spring
+package com.lightbend.play.spring
 
 import org.springframework.beans.MutablePropertyValues
-import org.springframework.beans.factory.config.{ConstructorArgumentValues, BeanDefinition}
-import org.springframework.beans.factory.support.{MethodOverrides, AbstractBeanDefinition, RootBeanDefinition}
+import org.springframework.beans.factory.config.{ ConstructorArgumentValues, BeanDefinition }
+import org.springframework.beans.factory.support.{ MethodOverrides, AbstractBeanDefinition, RootBeanDefinition }
 
 object RootBeanDefinitionCreator {
 
@@ -21,7 +21,7 @@ object RootBeanDefinitionCreator {
     rbd.setSource(bd.getSource)
 
     val attributeNames = bd.attributeNames
-    for ( attributeName <- attributeNames) {
+    for (attributeName <- attributeNames) {
       rbd.setAttribute(attributeName, bd.getAttribute(attributeName))
     }
 

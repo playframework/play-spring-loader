@@ -1,4 +1,4 @@
-package com.actimust.play.spring
+package com.lightbend.play.spring
 
 import controllers.Assets
 import play.api.ApplicationLoader.Context
@@ -52,10 +52,8 @@ private object SpringApplicationLoader {
           bind[OptionalSourceMapper] to new OptionalSourceMapper(context.sourceMapper),
           bind[WebCommands] to context.webCommands,
           bind[Assets].to[Assets],
-          bind[play.Configuration].to[play.Configuration]
-        )
-      }
-    )
+          bind[play.Configuration].to[play.Configuration])
+      })
   }
 
 }
