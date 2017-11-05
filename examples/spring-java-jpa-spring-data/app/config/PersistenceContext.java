@@ -1,7 +1,7 @@
 package config;
 
 import java.util.Properties;
-import model.AbstractEntity;
+
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
@@ -15,28 +15,23 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.typesafe.config.Config;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+
+import model.AbstractEntity;
+import play.db.DBApi;
 
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories("repositories")
 public class PersistenceContext {
 
-  @Bean(destroyMethod = "close")
-  DataSource dataSource(Config config) {
-    Config dbConfig = config.getConfig("db.default");
-    HikariConfig dataSourceConfig = new HikariConfig();
-    dataSourceConfig.setDriverClassName(dbConfig.getString("driver"));
-    dataSourceConfig.setJdbcUrl(dbConfig.getString("url"));
-    dataSourceConfig.setUsername(dbConfig.getString("username"));
-    dataSourceConfig.setPassword(dbConfig.getString("password"));
-    return new HikariDataSource(dataSourceConfig);
+  @Bean
+  DataSource dataSource(DBApi dbapi) {
+    return dbapi.getDatabase("default").getDataSource();
   }
 
   @Bean
   LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource, Config config) {
-    Config dbConfig = config.getConfig("db.default");
+    Config hibernateConfig = config.getConfig("db.default.hibernate");
 
     LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
     entityManagerFactoryBean.setDataSource(dataSource);
@@ -44,13 +39,10 @@ public class PersistenceContext {
     entityManagerFactoryBean.setPackagesToScan(ClassUtils.getPackageName(AbstractEntity.class));
 
     Properties jpaProperties = new Properties();
-    jpaProperties.put("hibernate.dialect", dbConfig.getString("hibernate.dialect"));
-    jpaProperties.put("hibernate.hbm2ddl.auto", dbConfig.getString("hibernate.hbm2ddl.auto"));
-    jpaProperties.put("hibernate.show_sql", dbConfig.getString("hibernate.show_sql"));
-    jpaProperties.put("hibernate.format_sql", dbConfig.getString("hibernate.format_sql"));
-    jpaProperties.put("hibernate.connection.autocommit", dbConfig.getString("hibernate.connection.autocommit"));
+    hibernateConfig.entrySet().forEach(entry -> {
+      jpaProperties.put("hibernate."+entry.getKey(), entry.getValue().unwrapped());
+    });
     entityManagerFactoryBean.setJpaProperties(jpaProperties);
-
     entityManagerFactoryBean.setPersistenceUnitName(config.getString("jpa.default"));
 
     return entityManagerFactoryBean;
