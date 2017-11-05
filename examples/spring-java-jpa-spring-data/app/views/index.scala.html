@@ -1,0 +1,8 @@
+@(entities: List[model.MyEntity])
+
+@main("Welcome to Play") {
+  <h1>Welcome to Play!</h1>
+  @for(entity <- entities){
+	Email: @entity.getEmail
+  }
+}
