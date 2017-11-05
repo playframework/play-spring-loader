@@ -109,7 +109,7 @@ public class PersistenceContext {
 
   @Bean
   LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource, Config config) {
-    Config dbConfig = config.getConfig("db.default");
+    Config hibernateConfig = config.getConfig("db.default.hibernate");
 
     LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
     entityManagerFactoryBean.setDataSource(dataSource);
@@ -117,13 +117,10 @@ public class PersistenceContext {
     entityManagerFactoryBean.setPackagesToScan("com.example.domain.model");
 
     Properties jpaProperties = new Properties();
-    jpaProperties.put("hibernate.dialect", dbConfig.getString("hibernate.dialect"));
-    jpaProperties.put("hibernate.hbm2ddl.auto", dbConfig.getString("hibernate.hbm2ddl.auto"));
-    jpaProperties.put("hibernate.show_sql", dbConfig.getString("hibernate.show_sql"));
-    jpaProperties.put("hibernate.format_sql", dbConfig.getString("hibernate.format_sql"));
-    jpaProperties.put("hibernate.connection.autocommit", dbConfig.getString("hibernate.connection.autocommit"));
+    hibernateConfig.entrySet().forEach(entry -> {
+      jpaProperties.put("hibernate."+entry.getKey(), entry.getValue().unwrapped());
+    });
     entityManagerFactoryBean.setJpaProperties(jpaProperties);
-
     entityManagerFactoryBean.setPersistenceUnitName(config.getString("jpa.default"));
 
     return entityManagerFactoryBean;
