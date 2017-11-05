@@ -96,15 +96,9 @@ Besides all of the above steps you must:
 // @EnableJpaRepositories //For SpringData
 public class PersistenceContext {
 
-  @Bean(destroyMethod = "close")
-  DataSource dataSource(Config config) {
-    Config dbConfig = config.getConfig("db.default");
-    HikariConfig dataSourceConfig = new HikariConfig();
-    dataSourceConfig.setDriverClassName(dbConfig.getString("driver"));
-    dataSourceConfig.setJdbcUrl(dbConfig.getString("url"));
-    dataSourceConfig.setUsername(dbConfig.getString("username"));
-    dataSourceConfig.setPassword(dbConfig.getString("password"));
-    return new HikariDataSource(dataSourceConfig);
+  @Bean
+  DataSource dataSource(play.db.DBApi dbapi) {
+    return dbapi.getDatabase("default").getDataSource();
   }
 
   @Bean
