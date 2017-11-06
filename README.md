@@ -11,7 +11,7 @@ The application loader was originally authored by Remi Thieblin based on the ori
 To use in your Play SBT project, add the dependency to your `build.sbt`:
 
 ```scala
-libraryDependencies += "com.lightbend.play" %% "play-spring-loader" % "0.0.1"
+libraryDependencies += "com.lightbend.play" %% "play-spring-loader" % "0.0.2"
 ```
 
 Then configure the loader in your `application.conf`:
