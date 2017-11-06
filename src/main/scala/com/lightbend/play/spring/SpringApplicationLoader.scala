@@ -43,7 +43,7 @@ class SpringApplicationLoader(protected val initialBuilder: SpringApplicationBui
     initialBuilder
       .in(context.environment)
       .loadConfig(context.initialConfiguration)
-      .overrides(overrides(context): Seq[Module])
+      .overrides(overrides(context): _*)
   }
 
   /**

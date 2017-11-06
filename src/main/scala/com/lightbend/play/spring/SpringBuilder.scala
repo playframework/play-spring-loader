@@ -20,23 +20,15 @@ import java.io.File
 import java.lang.annotation.Annotation
 import javax.inject.Provider
 
+import com.typesafe.config.Config
 import org.springframework.beans.TypeConverter
-import org.springframework.beans.factory.FactoryBean
-import org.springframework.beans.factory.NoSuchBeanDefinitionException
-import org.springframework.beans.factory.NoUniqueBeanDefinitionException
-import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor
-import org.springframework.beans.factory.annotation.QualifierAnnotationAutowireCandidateResolver
 import org.springframework.beans.factory.annotation.{ AutowiredAnnotationBeanPostProcessor, QualifierAnnotationAutowireCandidateResolver }
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory
-import org.springframework.beans.factory.config.BeanDefinition
-import org.springframework.beans.factory.config.BeanDefinitionHolder
 import org.springframework.beans.factory.config.{ AutowireCapableBeanFactory, BeanDefinition, BeanDefinitionHolder }
 import org.springframework.beans.factory.support._
 import org.springframework.beans.factory.{ FactoryBean, NoSuchBeanDefinitionException, NoUniqueBeanDefinitionException }
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import play.api._
 import play.api.inject._
-import play.api._
 
 import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
@@ -50,8 +42,7 @@ abstract class SpringBuilder[Self] protected (
   modules: Seq[Module],
   overrides: Seq[Module],
   disabled: Seq[Class[_]],
-  beanReader: PlayModuleBeanDefinitionReader,
-  eagerly: Boolean) {
+  beanReader: PlayModuleBeanDefinitionReader) {
 
   /**
    * Set the environment.
@@ -68,7 +59,7 @@ abstract class SpringBuilder[Self] protected (
   /**
    * Set the environment mode.
    */
-  final def in(mode: Mode.Mode): Self =
+  final def in(mode: Mode): Self =
     copyBuilder(environment = environment.copy(mode = mode))
 
   /**
@@ -78,10 +69,10 @@ abstract class SpringBuilder[Self] protected (
     copyBuilder(environment = environment.copy(classLoader = classLoader))
 
   /**
-   * Set the dependency initialization to eager.
+   * Add additional configuration.
    */
-  final def eagerlyLoaded(): Self =
-    copyBuilder(eagerly = true)
+  final def configure(conf: Config): Self =
+    configure(Configuration(conf))
 
   /**
    * Add additional configuration.
@@ -102,21 +93,24 @@ abstract class SpringBuilder[Self] protected (
     configure(conf.toMap)
 
   /**
-   * Add Guice modules, Play modules, or Play bindings.
+   * Add Play modules or Play bindings.
    */
-  final def bindings(bindModules: Seq[Module]): Self =
+  @annotation.varargs
+  final def bindings(bindModules: Module*): Self =
     copyBuilder(modules = modules ++ bindModules)
 
   /**
    * Disable modules by class.
    */
+  @annotation.varargs
   final def disable(moduleClasses: Class[_]*): Self =
     copyBuilder(disabled = disabled ++ moduleClasses)
 
   /**
    * Override bindings using Spring modules, Play modules, or Play bindings.
    */
-  final def overrides(overrideModules: Seq[Module]): Self =
+  @annotation.varargs
+  final def overrides(overrideModules: Module*): Self =
     copyBuilder(overrides = overrides ++ overrideModules)
 
   /**
@@ -125,12 +119,7 @@ abstract class SpringBuilder[Self] protected (
   final def withBeanReader(beanReader: PlayModuleBeanDefinitionReader): Self =
     copyBuilder(beanReader = beanReader)
 
-  def applicationModule(): Seq[_] = createModule()
-
-  /**
-   *
-   */
-  def createModule(): Seq[Module] = {
+  def createModules(): Seq[Module] = {
 
     val injectorModule = new Module {
       def bindings(environment: Environment, configuration: Configuration) = Seq(
@@ -168,9 +157,9 @@ abstract class SpringBuilder[Self] protected (
     beanFactory.registerSingleton("play-injector", injector)
 
     //build modules
-    val modulesToRegister = applicationModule()
+    val modulesToRegister = createModules()
 
-    val disabledBindings = configuration.getStringSeq("play.bindings.disabled").getOrElse(Seq.empty)
+    val disabledBindings = configuration.get[Seq[String]]("play.spring.bindings.disabled")
     val disabledBindingClasses: Seq[Class[_]] = disabledBindings.map(className => loadClass(className))
 
     //register modules
@@ -181,10 +170,10 @@ abstract class SpringBuilder[Self] protected (
           .foreach(b => beanReader.bind(beanFactory, b))
       case unknown => throw new PlayException(
         "Unknown module type",
-        s"Module [$unknown] is not a Play module or a Guice module")
+        s"Module [$unknown] is not a Play module")
     }
 
-    val springConfig = configuration.getStringSeq("play.spring.configs").getOrElse(Seq.empty)
+    val springConfig = configuration.get[Seq[String]]("play.spring.configs")
     val confClasses: Seq[Class[_]] = springConfig.map(className => loadClass(className))
     if (confClasses.nonEmpty) {
       ctx.register(confClasses: _*)
@@ -217,9 +206,8 @@ abstract class SpringBuilder[Self] protected (
     modules: Seq[Module] = modules,
     overrides: Seq[Module] = overrides,
     disabled: Seq[Class[_]] = disabled,
-    beanReader: PlayModuleBeanDefinitionReader = beanReader,
-    eagerly: Boolean = eagerly): Self =
-    newBuilder(environment, configuration, modules, overrides, disabled, beanReader, eagerly)
+    beanReader: PlayModuleBeanDefinitionReader = beanReader): Self =
+    newBuilder(environment, configuration, modules, overrides, disabled, beanReader)
 
   /**
    * Create a new Self for this immutable builder.
@@ -231,8 +219,7 @@ abstract class SpringBuilder[Self] protected (
     modules: Seq[Module],
     overrides: Seq[Module],
     disabled: Seq[Class[_]],
-    beanReader: PlayModuleBeanDefinitionReader,
-    eagerly: Boolean): Self
+    beanReader: PlayModuleBeanDefinitionReader): Self
 
 }
 

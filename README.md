@@ -4,7 +4,7 @@ This is an application loader for Play applications that runs with Spring as the
 
 The current version targets Play 2.6.x and Spring 4.3.x. It may work but has not been tested on other versions.
 
-The application loader was originally authored by [Remi Thieblin](https://github.com/remithieblin) and is now being maintained by the Play team. There are currently no plans to add new features, but we're happy to accept contributions from the community. This project still needs tests and also a Java API for the SpringApplicationBuilder (though the Scala API can be used from Java).
+The application loader was originally authored by Remi Thieblin based on the original proof of concept by James Roper. It is now being maintained by the Play team. There are currently no plans to add new features, but we're happy to accept contributions from the community. This project still needs tests and also a Java API for the SpringApplicationBuilder (though the Scala API can be used from Java).
 
 ## Setup Instructions
 

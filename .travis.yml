@@ -1,0 +1,14 @@
+language: scala
+scala:
+- 2.12.4
+jdk:
+- oraclejdk8
+script:
+- sbt ++$TRAVIS_SCALA_VERSION validateCode test
+cache:
+  directories:
+  - "$HOME/.ivy2/cache"
+before_cache:
+- rm -rf $HOME/.ivy2/cache/com.lightbend.play/*
+- rm -rf $HOME/.ivy2/cache/scala_*/sbt_*/com.lightbend.play/*
+- find $HOME/.ivy2/cache -name "ivydata-*.properties" -print0 | xargs -n10 -0 rm
