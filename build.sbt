@@ -14,7 +14,10 @@ lazy val root = (project in file(".")).enablePlugins(PlayLibrary)
 
 libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play" % PlayVersion,
-  "org.springframework" % "spring-context" % SpringVersion
+  "org.springframework" % "spring-context" % SpringVersion,
+
+  "com.typesafe.play" %% "play-java" % PlayVersion,
+  "com.novocode" % "junit-interface" % "0.11" % "test"
 )
 
 import ReleaseTransformations._
@@ -33,6 +36,8 @@ releaseProcess := Seq[ReleaseStep](
   ReleaseStep(action = Command.process("sonatypeReleaseAll", _), enableCrossBuild = true),
   pushChanges
 )
+
+testOptions in Test := Seq(Tests.Argument(TestFrameworks.JUnit, "-a"))
 
 lazy val checkCodeFormat = taskKey[Unit]("Check that code format is following Scalariform rules")
 

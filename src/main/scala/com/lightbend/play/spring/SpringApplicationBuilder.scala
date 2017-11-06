@@ -29,11 +29,10 @@ class SpringApplicationBuilder(
   modules: Seq[Module] = Seq.empty,
   overrides: Seq[Module] = Seq.empty,
   disabled: Seq[Class[_]] = Seq.empty,
-  eagerly: Boolean = false,
   loadConfiguration: Environment => Configuration = Configuration.load,
   loadModules: (Environment, Configuration) => Seq[Module] = SpringableModule.loadModules,
   beanReader: PlayModuleBeanDefinitionReader = DefaultPlayModuleBeanDefinitionReader()) extends SpringBuilder[SpringApplicationBuilder](
-  environment, configuration, modules, overrides, disabled, beanReader, eagerly) {
+  environment, configuration, modules, overrides, disabled, beanReader) {
 
   // extra constructor for creating from Java
   def this() = this(environment = Environment.simple())
@@ -47,9 +46,8 @@ class SpringApplicationBuilder(
     configuration: Configuration,
     modules: Seq[Module], overrides: Seq[Module],
     disabled: Seq[Class[_]],
-    beanReader: PlayModuleBeanDefinitionReader,
-    eagerly: Boolean): SpringApplicationBuilder = {
-    copy(environment, configuration, modules, overrides, disabled, beanReader, eagerly)
+    beanReader: PlayModuleBeanDefinitionReader): SpringApplicationBuilder = {
+    copy(environment, configuration, modules, overrides, disabled, beanReader)
   }
 
   override def prepareConfig(): SpringApplicationBuilder = {
@@ -67,13 +65,10 @@ class SpringApplicationBuilder(
     val loadedModules = loadModules(environment, appConfiguration)
 
     copy(configuration = appConfiguration)
-      .bindings(loadedModules: Seq[Module])
-      .bindings(
-        Seq(new Module {
-          def bindings(environment: Environment, configuration: Configuration) = Seq(
-            bind[OptionalSourceMapper] to new OptionalSourceMapper(None),
-            bind[WebCommands] to new DefaultWebCommands)
-        }))
+      .bindings(loadedModules: _*)
+      .bindings((_, _) => Seq(
+        bind[OptionalSourceMapper] to new OptionalSourceMapper(None),
+        bind[WebCommands] to new DefaultWebCommands))
   }
 
   /**
@@ -145,7 +140,7 @@ class SpringApplicationBuilder(
   }
 
   override def injector(): Injector = {
-    prepareConfig().bindings(createModule()).springInjector()
+    prepareConfig().bindings(createModules(): _*).springInjector()
   }
 
   /**
@@ -158,8 +153,7 @@ class SpringApplicationBuilder(
     overrides: Seq[Module] = overrides,
     disabled: Seq[Class[_]] = disabled,
     beanReader: PlayModuleBeanDefinitionReader = beanReader,
-    eagerly: Boolean = eagerly,
     loadConfiguration: Environment => Configuration = loadConfiguration,
     loadModules: (Environment, Configuration) => Seq[Module] = loadModules): SpringApplicationBuilder =
-    new SpringApplicationBuilder(environment, configuration, modules, overrides, disabled, eagerly, loadConfiguration, loadModules, beanReader)
+    new SpringApplicationBuilder(environment, configuration, modules, overrides, disabled, loadConfiguration, loadModules, beanReader)
 }
