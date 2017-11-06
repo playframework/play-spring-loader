@@ -16,7 +16,7 @@
 
 package com.lightbend.play.spring
 
-import play.api.inject._
+import play.api.inject.{ bind, _ }
 import play.api._
 import play.core.{ DefaultWebCommands, WebCommands }
 
@@ -66,9 +66,11 @@ class SpringApplicationBuilder(
 
     copy(configuration = appConfiguration)
       .bindings(loadedModules: _*)
-      .bindings((_, _) => Seq(
-        bind[OptionalSourceMapper] to new OptionalSourceMapper(None),
-        bind[WebCommands] to new DefaultWebCommands))
+      .bindings(new Module {
+        override def bindings(env: Environment, conf: Configuration): Seq[Binding[_]] = Seq(
+          bind[OptionalSourceMapper] to new OptionalSourceMapper(None),
+          bind[WebCommands] to new DefaultWebCommands)
+      })
   }
 
   /**
