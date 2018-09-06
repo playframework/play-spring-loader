@@ -15,6 +15,8 @@ lazy val root = (project in file(".")).enablePlugins(PlayLibrary)
 libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play" % PlayVersion,
   "org.springframework" % "spring-context" % SpringVersion,
+  "org.springframework.boot" % "spring-boot" % "1.4.7.RELEASE",
+
 
   "com.typesafe.play" %% "play-java" % PlayVersion,
   "com.novocode" % "junit-interface" % "0.11" % "test"
