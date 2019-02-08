@@ -149,6 +149,6 @@ If you want to use SpringData, replace `"org.springframework" % "spring-orm" % "
 
 ## Support
 
-The Play Mailer library is *[Community Driven][]*.
+The play-spring-loader library is *[Community Driven][]*.
 
 [Community Driven]: https://developer.lightbend.com/docs/reactive-platform/2.0/support-terminology/index.html#community-driven
