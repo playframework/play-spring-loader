@@ -146,3 +146,9 @@ db {
 8. Replace all `play.db.jpa.Transactional` with `javax.transaction.Transactional`
 
 If you want to use SpringData, replace `"org.springframework" % "spring-orm" % "4.3.12.RELEASE"`, `"org.springframework" % "spring-aop" % "4.3.12.RELEASE"` and `"org.springframework" % "spring-expression" % "4.3.12.RELEASE"` with `"org.springframework.data" % "spring-data-jpa" % "1.11.8.RELEASE"` and uncomment `@EnableJpaRepositories` over `PersistenceContext` class
+
+## Support
+
+The play-spring-loader library is *[Community Driven][]*.
+
+[Community Driven]: https://developer.lightbend.com/docs/reactive-platform/2.0/support-terminology/index.html#community-driven
