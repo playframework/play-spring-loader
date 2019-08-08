@@ -151,4 +151,4 @@ If you want to use SpringData, replace `"org.springframework" % "spring-orm" % "
 
 The play-spring-loader library is *[Community Driven][]*.
 
-[Community Driven]: https://developer.lightbend.com/docs/reactive-platform/2.0/support-terminology/index.html#community-driven
+[Community Driven]: https://developer.lightbend.com/docs/lightbend-platform/introduction/getting-help/support-terminology.html#community-driven
