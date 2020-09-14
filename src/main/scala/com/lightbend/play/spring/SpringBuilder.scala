@@ -26,10 +26,12 @@ import org.springframework.beans.factory.annotation.{ AutowiredAnnotationBeanPos
 import org.springframework.beans.factory.config.{ AutowireCapableBeanFactory, BeanDefinition, BeanDefinitionHolder }
 import org.springframework.beans.factory.support._
 import org.springframework.beans.factory.{ FactoryBean, NoSuchBeanDefinitionException, NoUniqueBeanDefinitionException }
+import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import play.api._
 import play.api.inject._
 
+import scala.concurrent.Future
 import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 
@@ -181,6 +183,11 @@ abstract class SpringBuilder[Self] protected (
 
     ctx.refresh()
     ctx.start()
+
+    injector.instanceOf[ApplicationLifecycle].addStopHook { () =>
+      ctx.asInstanceOf[ConfigurableApplicationContext].close()
+      Future.successful(())
+    }
 
     injector
   }
