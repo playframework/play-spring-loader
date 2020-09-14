@@ -80,6 +80,17 @@ public class PlaySpringDIConfiguration {
 }
 ```
 
+### For Spring Boot support (Optional)
+
+In order to support Spring Boot auto configurations, you can define additional context. This boot context is set as the parent context to the above play context. 
+
+In play dev mode, this context is reused during application reload in order to save time.
+
+```sh
+play.spring.boot.configs = ["com.example.PlaySpringBootConfiguration"]
+
+```
+
 ## Migrating from Guice
 
 If you want to migrate your existing project from `guice` you should follow these steps

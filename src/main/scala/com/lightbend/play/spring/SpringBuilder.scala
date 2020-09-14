@@ -26,6 +26,8 @@ import org.springframework.beans.factory.annotation.{ AutowiredAnnotationBeanPos
 import org.springframework.beans.factory.config.{ AutowireCapableBeanFactory, BeanDefinition, BeanDefinitionHolder }
 import org.springframework.beans.factory.support._
 import org.springframework.beans.factory.{ FactoryBean, NoSuchBeanDefinitionException, NoUniqueBeanDefinitionException }
+import org.springframework.boot.builder.SpringApplicationBuilder
+import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import play.api._
 import play.api.inject._
@@ -146,7 +148,10 @@ abstract class SpringBuilder[Self] protected (
   }
 
   def springInjector(): Injector = {
+
     val ctx = new AnnotationConfigApplicationContext()
+
+    getBootContext.flatten.map(context => ctx.setParent(context))
 
     val beanFactory = ctx.getDefaultListableBeanFactory
 
@@ -178,11 +183,44 @@ abstract class SpringBuilder[Self] protected (
     if (confClasses.nonEmpty) {
       ctx.register(confClasses: _*)
     }
-
     ctx.refresh()
     ctx.start()
 
+    println("play context started.")
+
     injector
+  }
+
+  def lodBootContext(springConfig: Seq[String]) = {
+
+    val confClasses: Seq[Class[_]] = springConfig.map(className => loadClass(className))
+
+    val builder = new org.springframework.boot.builder.SpringApplicationBuilder().web(false);
+    if (confClasses.nonEmpty) {
+      println("Loading boot context with sources: " + confClasses.mkString(","))
+      builder.sources(confClasses: _*);
+
+      val rootContext: ConfigurableApplicationContext = builder.run();
+      println("Loaded boot context successfully.")
+      Some(rootContext)
+    } else {
+      None
+    }
+  }
+
+  private def getBootContext = {
+
+    configuration.getOptional[Seq[String]]("play.spring.boot.configs").map(springConfig => {
+
+      if (environment.mode == play.api.Mode.Dev && SpringBuilder.rootContext.isDefined) {
+        println("play dev mode detected, reusing existing boot context...")
+        SpringBuilder.rootContext
+      } else {
+        SpringBuilder.rootContext = lodBootContext(springConfig);
+        SpringBuilder.rootContext
+      }
+
+    })
   }
 
   def loadClass(className: String): Class[_] = {
@@ -224,6 +262,9 @@ abstract class SpringBuilder[Self] protected (
 }
 
 private object SpringBuilder {
+
+  var rootContext: Option[ConfigurableApplicationContext] = None;
+
   /**
    * Set the scope on the given bean definition if a scope annotation is declared on the class.
    */

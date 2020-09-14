@@ -17,16 +17,16 @@
 package com.lightbend.play.spring
 
 import org.springframework.beans.BeanInstantiationException
-import org.springframework.beans.factory.config.{ AutowireCapableBeanFactory, BeanDefinition }
+import org.springframework.beans.factory.config.{ AutowireCapableBeanFactory, BeanDefinition, ConfigurableListableBeanFactory }
 import org.springframework.beans.factory.{ BeanCreationException, NoSuchBeanDefinitionException }
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor
-import org.springframework.beans.factory.support.{ GenericBeanDefinition, DefaultListableBeanFactory }
-import play.api.inject.{ BindingKey, Injector, Modules, Module }
-import play.api.{ PlayException, Configuration, Environment }
+import org.springframework.beans.factory.support.{ DefaultListableBeanFactory, GenericBeanDefinition }
+import play.api.inject.{ BindingKey, Injector, Module, Modules }
+import play.api.{ Configuration, Environment, PlayException }
 
 import scala.reflect.ClassTag
 
-class SpringInjector(factory: DefaultListableBeanFactory) extends Injector {
+class SpringInjector(var factory: DefaultListableBeanFactory) extends Injector {
 
   private val bpp = new AutowiredAnnotationBeanPostProcessor()
   bpp.setBeanFactory(factory)
