@@ -1,3 +1,12 @@
+# End of Life
+
+The active Playframework contributors consider this repository has reached End of Life and archived it.
+
+This repository is not being used anymore and won't get any further updates.
+
+Thank you to all contributors that worked on this repository!
+
+
 # Play Spring Loader
 
 This is an application loader for Play applications that runs with Spring as the DI. It binds and allows injecting all Play-provided components in addition to any components provided by third-party Play modules (defined as a `play.api.inject.Module`)
